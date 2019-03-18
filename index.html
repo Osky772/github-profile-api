@@ -5,35 +5,58 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<title>Github Profile</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link
+			rel="stylesheet"
+			href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+			integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu"
+			crossorigin="anonymous"
+		/>
 		<link rel="stylesheet" type="text/css" media="screen" href="main.css" />
 	</head>
 	<body>
 		<main>
 			<section id="form">
-				<div>
-					<form action>
-						<input type="text" placeholder="Github username" id="gh-username" />
-						<input type="submit" value="send" />
-					</form>
-					<form action>
-						<label for="gh-reposNum">repositiories: </label>
-						<input type="number" min="0" max="10" value="3" id="gh-reposNum" />
-					</form>
-					<form action class>
-						<input
-							type="radio"
-							name="repo-sorting"
-							id="last-updated"
-							value="checked"
-						/>
-						<label for="last-updated">Last updated</label>
-						<input type="radio" name="repo-sorting" id="most-starred" value />
-						<label for="most-starred">Most starred</label>
-					</form>
-				</div>
+				<form action>
+					<input type="text" placeholder="Github username" id="gh-username" />
+					<input type="submit" value="send" />
+				</form>
+				<form action>
+					<label for="gh-reposNum">repositiories: </label>
+					<input type="number" min="0" max="10" value="3" id="gh-reposNum" />
+				</form>
+				<form action class>
+					<input
+						type="radio"
+						name="repo-sorting"
+						id="last-updated"
+						value="checked"
+					/>
+					<label for="last-updated">Last updated</label>
+					<input type="radio" name="repo-sorting" id="most-starred" value />
+					<label for="most-starred">Most starred</label>
+				</form>
 			</section>
-			<section>
-				<div id="profile">profile</div>
+			<section id="profile">
+				<div id="profile__header">
+					<div id="profile__avatar">
+						<img src="https://picsum.photos/64/64" />
+					</div>
+					<div id="profile__info">
+						<a href="" id="profile__name">name</a>
+						<div id="profile__follow">
+							<a href="" class="btn btn-default">Follow</a>
+							<span id="profile__followers">10</span>
+						</div>
+					</div>
+				</div>
+				<ul id="profile__languages">
+					<li>Javascript</li>
+					<li>Javascript</li>
+					<li>Javascript</li>
+				</ul>
+				<div id="repos">
+					<p id="repos__header">Last updated repositiories</p>
+				</div>
 			</section>
 		</main>
 

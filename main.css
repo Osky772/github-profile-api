@@ -4,7 +4,7 @@
 }
 
 main {
-    max-width: 1000px;
+    max-width: 800px;
     background: gray;
     display: flex;
     margin: 0 auto;
@@ -14,8 +14,36 @@ main {
 #form {
     width: 50%;
     display: flex;
+    flex-direction: column
 }
 
 #profile {
     width: 50%;
+}
+
+#profile__header {
+    display: flex;
+}
+
+#profile__avatar {
+    width: 30%;
+}
+
+#profile__info {
+    width: 70%;
+}
+
+#profile__name {
+    display: block;
+    font-size: 2rem
+}
+
+#profile__languages {
+    display: flex;
+    margin-top: 30px;
+    justify-content: space-evenly
+}
+
+#repos__header {
+    background: lightgray
 }
