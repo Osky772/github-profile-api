@@ -30,8 +30,8 @@ main {
 }
 
 #profile__avatar img {
-    max-width: 64px;
-    max-height: 64px;
+    max-width: 70px;
+    max-height: 70px;
 }
 
 #profile__info {
@@ -51,4 +51,19 @@ main {
 
 #repos__header {
     background: lightgray
+}
+
+.repo-link {
+    display: block;
+    position: relative;
+    padding: 1rem;
+    font-size: 0.9rem;
+    color: white;
+}
+
+.repo-name {
+    max-width: 280px;
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-overflow: ellipsis;
 }
