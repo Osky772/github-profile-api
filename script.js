@@ -1,9 +1,11 @@
 const getUserInput = document.querySelector("#gh-username");
 const sendButton = document.querySelector("#send");
 const findUserForm = document.querySelector("#find-user");
+const repoList = document.querySelector("#repo__list");
 
 let userGhData = {};
 let userGhRepos = [];
+let renderRepos = [];
 
 async function getUserData(nick) {
 	const user = await fetch(`https://api.github.com/users/${nick}`).then(res =>
@@ -32,18 +34,23 @@ const fillUserHeader = data => {
 };
 
 const renderUserRepos = repos => {
-	const repoList = document.querySelector("#repo__list");
+	const maxRepos = document.querySelector("#gh-reposNum").value;
+	renderRepos = repos.slice(0, maxRepos);
 
-	repos.forEach(repo => {
-		console.log(repo);
+	const exisitingLinks = document.querySelectorAll(".repo-link");
+	// exisitingLinks.length !== 0
+	// 	? exisitingLinks.forEach(el => el.remove())
+	// 	: null;
+	console.log(exisitingLinks.length);
+
+	renderRepos.forEach((repo, i) => {
 		const repoLink = document.createElement("a");
 		repoLink.classList.add("repo-link");
 		repoLink.href = repo["html_url"];
-		const repoName = document.createElement("span");
-		repoName.classList.add("repo-name");
-		repoName.textContent = repo.name;
-		repoLink.appendChild(repoName);
 
+		repoLink.innerHTML = `
+            <span class="repo-name">${repo.name}</span>
+            `;
 		repoList.appendChild(repoLink);
 	});
 };

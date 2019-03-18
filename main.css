@@ -3,9 +3,12 @@
     padding: 0
 }
 
+body {
+    background: #fbfaf7;
+}
+
 main {
     max-width: 800px;
-    background: gray;
     display: flex;
     margin: 0 auto;
     min-height: 300px;
@@ -56,9 +59,14 @@ main {
 .repo-link {
     display: block;
     position: relative;
-    padding: 1rem;
+    padding: 1.3rem;
     font-size: 0.9rem;
-    color: white;
+    color: darkslategray;
+}
+
+.repo-link:hover {
+    color: #4183C4;
+    text-decoration: none;
 }
 
 .repo-name {
