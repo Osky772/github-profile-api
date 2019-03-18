@@ -29,6 +29,11 @@ main {
     width: 30%;
 }
 
+#profile__avatar img {
+    max-width: 64px;
+    max-height: 64px;
+}
+
 #profile__info {
     width: 70%;
 }
