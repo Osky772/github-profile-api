@@ -26,6 +26,7 @@ const fillUserHeader = data => {
 	const userFollowLink = document.querySelector("#profile__follow a");
 
 	userName.textContent = data.name;
+	userName.href = data["html_url"];
 	userAvatar.src = data["avatar_url"];
 	userFollowers.textContent = data.followers;
 	userFollowLink.textContent = `Follow @${data.login}`;
