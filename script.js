@@ -28,7 +28,30 @@ async function getUserData(nick) {
 		.then(responses => Promise.all(responses.map(r => r.json())))
 		.then(value => {
 			languages = value;
-			console.log(languages);
+
+			const uniqueLangs = [
+				...new Set(
+					languages
+						.map(repo => Object.keys(repo))
+						.reduce((acc, next) => acc.concat(next), [])
+				)
+			];
+
+			const eachLangSize = uniqueLangs.map(lang => {
+				return languages
+					.filter(repo => repo[lang] !== undefined)
+					.reduce((acc, next) => acc + next[lang], 0);
+			});
+
+			const result = eachLangSize.reduce((result, field, index) => {
+				result.push({
+					lang: uniqueLangs[index],
+					field
+				});
+				return result;
+			}, []);
+
+			console.log(result);
 		});
 	userGhData = user;
 	userGhRepos = repos;
