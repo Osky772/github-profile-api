@@ -38,7 +38,6 @@ main {
 
 #profile {
     width: 280px;
-    /* height: calc(100% - 100px); */
     background: #fff;
     border: 1px solid lightgray;
     border-radius: 5px;
@@ -139,9 +138,11 @@ form {
 }
 
 #repos__header {
+    width: calc(100% + 1px);
     background: linear-gradient(#f3f3f3, rgb(223, 223, 223));
     border-top: 1px solid lightgray;
     border-bottom: 1px solid lightgray;
+    border-right: 1px solid lightgray;
     font-size: 1.5rem;
     margin-top: 15px;
     margin-bottom: 0px;
@@ -160,6 +161,10 @@ form {
     color: darkslategray;
     background: #fafafa;
     border-bottom: 1px solid lightgray;
+}
+
+.repo-link:last-child {
+    border-bottom: 0;
 }
 
 .repo-link:hover {
