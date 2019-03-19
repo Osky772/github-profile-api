@@ -7,6 +7,7 @@ const maxReposInput = document.querySelector("#gh-reposNum");
 let userGhData = {};
 let userGhRepos = [];
 let reposToRender = [];
+let languages;
 
 async function getUserData(nick) {
 	const user = await fetch(
@@ -25,8 +26,10 @@ async function getUserData(nick) {
 	Promise.all(requests)
 		.then(responses => responses.map(res => res))
 		.then(responses => Promise.all(responses.map(r => r.json())))
-		.then(console.log);
-
+		.then(value => {
+			languages = value;
+			console.log(languages);
+		});
 	userGhData = user;
 	userGhRepos = repos;
 	fillUserHeader(userGhData);
