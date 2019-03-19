@@ -9,10 +9,24 @@ let userGhRepos = [];
 let reposToRender = [];
 
 async function getUserData(nick) {
-	const user = await fetch(`https://api.github.com/users/${nick}`).then(res =>
-		res.json()
-	);
-	const repos = await fetch(user["repos_url"]).then(res => res.json());
+	const user = await fetch(
+		`https://api.github.com/users/${nick}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}`
+	).then(res => res.json());
+
+	const repos = await fetch(
+		`${user["repos_url"]}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}`
+	).then(res => res.json());
+	const languageUrls = repos.map(repo => {
+		return `${
+			repo["languages_url"]
+		}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}`;
+	});
+	const requests = languageUrls.map(url => fetch(url));
+	Promise.all(requests)
+		.then(responses => responses.map(res => res))
+		.then(responses => Promise.all(responses.map(r => r.json())))
+		.then(console.log);
+
 	userGhData = user;
 	userGhRepos = repos;
 	fillUserHeader(userGhData);
