@@ -47,8 +47,13 @@ const renderUserRepos = repos => {
 		repoLink.classList.add("repo-link");
 		repoLink.href = repo["html_url"];
 
+		const updatedAt = moment(repo["updated_at"])
+			.subtract(10, "days")
+			.calendar();
+
 		repoLink.innerHTML = `
             <span class="repo-name">${repo.name}</span>
+            <span class="repo-update">Updated: ${updatedAt}</span>
             `;
 		repoList.appendChild(repoLink);
 	});
