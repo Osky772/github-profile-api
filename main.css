@@ -27,7 +27,6 @@ main {
     display: flex;
     margin: 0 auto;
     justify-content: space-between;
-    min-height: 300px;
 }
 
 #form-section {
@@ -58,6 +57,7 @@ form {
 
 #gh-username {
     width: 80%;
+    padding: 5px 10px;
     margin: 0;
 }
 
@@ -164,7 +164,7 @@ form {
 }
 
 .repo-link:last-child {
-    border-bottom: 0;
+    border-bottom: 2px solid lightgray;
 }
 
 .repo-link:hover {
