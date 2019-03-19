@@ -3,11 +3,12 @@ const sendButton = document.querySelector("#send");
 const findUserForm = document.querySelector("#find-user");
 const repoList = document.querySelector("#repo__list");
 const maxReposInput = document.querySelector("#gh-reposNum");
+const languagesList = document.querySelector("#profile__languages");
 
 let userGhData = {};
 let userGhRepos = [];
 let reposToRender = [];
-let languages;
+let topLanguages;
 
 async function getUserData(nick) {
 	const user = await fetch(
@@ -27,7 +28,7 @@ async function getUserData(nick) {
 		.then(responses => responses.map(res => res))
 		.then(responses => Promise.all(responses.map(r => r.json())))
 		.then(value => {
-			languages = value;
+			let languages = value;
 
 			const uniqueLangs = [
 				...new Set(
@@ -43,15 +44,18 @@ async function getUserData(nick) {
 					.reduce((acc, next) => acc + next[lang], 0);
 			});
 
-			const result = eachLangSize.reduce((result, field, index) => {
-				result.push({
-					lang: uniqueLangs[index],
-					field
-				});
-				return result;
-			}, []);
-
-			console.log(result);
+			const result = eachLangSize
+				.reduce((result, size, index) => {
+					result.push({
+						name: uniqueLangs[index],
+						size
+					});
+					return result;
+				}, [])
+				.sort((a, b) => b.size - a.size)
+				.slice(0, 3);
+			topLanguages = result;
+			createLanguagesList(topLanguages);
 		});
 	userGhData = user;
 	userGhRepos = repos;
@@ -71,6 +75,16 @@ const fillUserHeader = data => {
 	userFollowers.textContent = data.followers;
 	userFollowLink.textContent = `Follow @${data.login}`;
 	userFollowLink.href = data["html_url"];
+};
+
+const createLanguagesList = languages => {
+	const existingLi = document.querySelectorAll("#profile__languages li");
+	existingLi.length !== 0 ? existingLi.forEach(li => li.remove()) : null;
+	languages.forEach(lang => {
+		const li = document.createElement("li");
+		li.textContent = lang.name;
+		languagesList.appendChild(li);
+	});
 };
 
 const renderUserRepos = repos => {

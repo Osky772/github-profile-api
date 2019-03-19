@@ -98,6 +98,9 @@ form {
     padding: 3px 6px;
     background: linear-gradient(#f3f3f3, rgb(223, 223, 223));
     font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
 }
 
 #profile__followers {
