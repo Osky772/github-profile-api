@@ -1,6 +1,7 @@
 * {
     margin: 0;
-    padding: 0
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
@@ -8,33 +9,81 @@ body {
 }
 
 main {
-    max-width: 800px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+#title {
+    font-family: Cochin, serif;
+    color: #c50029;
+    border-bottom: 1px solid lightgray;
+    margin-top: 50px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+}
+
+#wrapper {
+    width: 500px;
     display: flex;
     margin: 0 auto;
+    justify-content: space-between;
     min-height: 300px;
 }
 
-#form {
-    width: 50%;
+#form-section {
+    width: 220px;
     display: flex;
-    flex-direction: column
+    flex-direction: column;
 }
 
 #profile {
-    width: 50%;
+    width: 280px;
+    /* height: calc(100% - 100px); */
+    background: #fff;
+    border: 1px solid lightgray;
+    border-radius: 5px;
+}
+
+form {
+    background: #fff;
+    margin: 1.2rem 1rem 0 0;
+    padding: 0.5rem;
+    border: 1px solid lightgray;
+}
+
+#gh-reposNum, #gh-username {
+    border: none;
+    margin-left: 10px;
+    width: 30%;
+}
+
+#gh-username {
+    width: 80%;
+    margin: 0;
+}
+
+#most-starred, #last-updated {
+    display: none;
+}
+
+#label-most-starred, #label-last-updated {
+    width: 90%
 }
 
 #profile__header {
     display: flex;
+    margin-top: 1rem;
 }
 
 #profile__avatar {
     width: 30%;
+    display: flex;
 }
 
 #profile__avatar img {
     max-width: 70px;
     max-height: 70px;
+    margin: 0 auto;
 }
 
 #profile__info {
@@ -46,14 +95,61 @@ main {
     font-size: 2rem
 }
 
+.follow-btn {
+    padding: 3px 6px;
+    background: linear-gradient(#f3f3f3, rgb(223, 223, 223));
+    font-weight: bold;
+}
+
+#profile__followers {
+    margin-left: 10px;
+    background: white;
+    border: 1px solid lightgray;
+    padding: 2px 6px;
+}
+
 #profile__languages {
     display: flex;
+    position: relative;
     margin-top: 30px;
-    justify-content: space-evenly
+    justify-content: space-evenly;
+    border-top: 1px solid lightgray;
+    padding-top: 15px;
+    font-weight: bold;
+}
+
+#profile__languages::before {
+    position: absolute;
+    top: -0.7em;
+    left: 15px;
+    background: #FFF;
+    padding-right: 5px;
+    content: 'Top languages';
+    font-style: italic;
+    font-weight: normal;
+    color: #555;
+}
+
+#profile__languages li:first-child {
+    list-style-type: none;
+}
+
+#repos {
+    width: 100%
 }
 
 #repos__header {
-    background: lightgray
+    background: linear-gradient(#f3f3f3, rgb(223, 223, 223));
+    border-top: 1px solid lightgray;
+    border-bottom: 1px solid lightgray;
+    font-size: 1.5rem;
+    margin-top: 15px;
+    margin-bottom: 0px;
+    padding: 5px 0 5px 10px;
+}
+
+#repo__list {
+    margin: 0;
 }
 
 .repo-link {
@@ -62,6 +158,8 @@ main {
     padding: 1.3rem;
     font-size: 0.9rem;
     color: darkslategray;
+    background: #fafafa;
+    border-bottom: 1px solid lightgray;
 }
 
 .repo-link:hover {
@@ -74,4 +172,10 @@ main {
     font-weight: bold;
     font-size: 1.5rem;
     text-overflow: ellipsis;
+}
+
+.repo-update {
+    display: block;
+    font-size: 1.15rem;
+    font-style: italic
 }
