@@ -2,10 +2,11 @@ const getUserInput = document.querySelector("#gh-username");
 const sendButton = document.querySelector("#send");
 const findUserForm = document.querySelector("#find-user");
 const repoList = document.querySelector("#repo__list");
+const maxReposInput = document.querySelector("#gh-reposNum");
 
 let userGhData = {};
 let userGhRepos = [];
-let renderRepos = [];
+let reposToRender = [];
 
 async function getUserData(nick) {
 	const user = await fetch(`https://api.github.com/users/${nick}`).then(res =>
@@ -29,21 +30,18 @@ const fillUserHeader = data => {
 	userFollowers.textContent = data.followers;
 	userFollowLink.textContent = `Follow @${data.login}`;
 	userFollowLink.href = data["html_url"];
-
-	console.log(data);
 };
 
 const renderUserRepos = repos => {
-	const maxRepos = document.querySelector("#gh-reposNum").value;
-	renderRepos = repos.slice(0, maxRepos);
+	const maxRepos = Number(maxReposInput.value);
+	reposToRender = repos.slice(0, maxRepos);
 
 	const exisitingLinks = document.querySelectorAll(".repo-link");
-	// exisitingLinks.length !== 0
-	// 	? exisitingLinks.forEach(el => el.remove())
-	// 	: null;
-	console.log(exisitingLinks.length);
+	if (exisitingLinks.length !== 0) {
+		exisitingLinks.forEach(el => el.remove());
+	}
 
-	renderRepos.forEach((repo, i) => {
+	reposToRender.forEach((repo, i) => {
 		const repoLink = document.createElement("a");
 		repoLink.classList.add("repo-link");
 		repoLink.href = repo["html_url"];
@@ -59,4 +57,8 @@ findUserForm.addEventListener("submit", function(e) {
 	e.preventDefault();
 	const userNickname = getUserInput.value;
 	getUserData(userNickname);
+});
+
+maxReposInput.addEventListener("mouseup", function(e) {
+	renderUserRepos(userGhRepos);
 });
