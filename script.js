@@ -23,6 +23,7 @@ async function getUserData(nick) {
 			repo["languages_url"]
 		}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}`;
 	});
+
 	const requests = languageUrls.map(url => fetch(url));
 	Promise.all(requests)
 		.then(responses => responses.map(res => res))
@@ -59,6 +60,7 @@ async function getUserData(nick) {
 		});
 	userGhData = user;
 	userGhRepos = repos;
+
 	fillUserHeader(userGhData);
 	renderUserRepos(userGhRepos);
 }
@@ -108,6 +110,9 @@ const renderUserRepos = repos => {
 		repoLink.innerHTML = `
             <span class="repo-name">${repo.name}</span>
             <span class="repo-update">Updated: ${updatedAt}</span>
+            <span class="repo-starred">${
+							repo.stargazers_count
+						} <i class="fas fa-star"></i></span>
             `;
 		repoList.appendChild(repoLink);
 	});

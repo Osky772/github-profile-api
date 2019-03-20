@@ -187,3 +187,19 @@ form {
     font-size: 1.15rem;
     font-style: italic
 }
+
+.repo-starred {
+    font-size: 1.4rem;
+    position: absolute;
+    right: 15px;
+    top: 20px;
+}
+
+.fa-star {
+    font-size: 1rem;
+}
+
+.fa-star::before {
+    position: absolute;
+    top: 5px;
+}
