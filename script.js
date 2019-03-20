@@ -118,6 +118,12 @@ const renderUserRepos = repos => {
 	});
 };
 
+const sortReposByUpdate = repos => {
+	return repos.sort((a, b) => {
+		return new Date(a["updated_at"]) * 1 - new Date(b["updated_at"]) * 1;
+	});
+};
+
 findUserForm.addEventListener("submit", function(e) {
 	e.preventDefault();
 	const userNickname = getUserInput.value;
