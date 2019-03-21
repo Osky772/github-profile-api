@@ -1,6 +1,6 @@
 const getUserInput = document.querySelector("#gh-username");
 const sendButton = document.querySelector("#send");
-const findUserForm = document.querySelector("#find-user");
+const ghUserNameForm = document.querySelector("#find-user");
 const repoList = document.querySelector("#repo__list");
 const maxReposInput = document.querySelector("#gh-reposNum");
 const languagesList = document.querySelector("#profile__languages");
@@ -62,6 +62,7 @@ async function getUserData(nick) {
 	userGhRepos = repos;
 
 	fillUserHeader(userGhData);
+	sortReposByUpdate(userGhRepos);
 	renderUserRepos(userGhRepos);
 }
 
@@ -89,9 +90,9 @@ const createLanguagesList = languages => {
 	});
 };
 
-const renderUserRepos = repos => {
+const renderUserRepos = userGhRepos => {
 	const maxRepos = Number(maxReposInput.value);
-	reposToRender = repos.slice(0, maxRepos);
+	reposToRender = userGhRepos.slice(0, maxRepos);
 
 	const exisitingLinks = document.querySelectorAll(".repo-link");
 	if (exisitingLinks.length !== 0) {
@@ -103,9 +104,7 @@ const renderUserRepos = repos => {
 		repoLink.classList.add("repo-link");
 		repoLink.href = repo["html_url"];
 
-		const updatedAt = moment(repo["updated_at"])
-			.subtract(10, "days")
-			.calendar();
+		const updatedAt = moment(repo["updated_at"]).calendar("sameDay");
 
 		repoLink.innerHTML = `
             <span class="repo-name">${repo.name}</span>
@@ -120,11 +119,11 @@ const renderUserRepos = repos => {
 
 const sortReposByUpdate = repos => {
 	return repos.sort((a, b) => {
-		return new Date(a["updated_at"]) * 1 - new Date(b["updated_at"]) * 1;
+		return new Date(b["updated_at"]) * 1 - new Date(a["updated_at"]) * 1;
 	});
 };
 
-findUserForm.addEventListener("submit", function(e) {
+ghUserNameForm.addEventListener("submit", function(e) {
 	e.preventDefault();
 	const userNickname = getUserInput.value;
 	getUserData(userNickname);
