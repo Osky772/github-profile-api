@@ -13,31 +13,35 @@ let userGhData = {};
 let userGhRepos = [];
 let reposToRender = [];
 let topLanguages;
+let errorMsg = [];
 
 function getUserData(nick) {
 	fetch(`https://api.github.com/users/${nick}`)
 		.then(res => {
+			const start = moment();
+			const end = moment(new Date(res.headers.get("X-RateLimit-Reset") * 1000));
+			const timeToComeBack = end.from(start, true);
 			if (!res.ok) {
 				res.json().then(error => {
 					const msg = error.message;
 					const end = msg.indexOf("(");
-					console.log(msg.slice(0, end));
+					errorMsg.push(msg.slice(0, end));
+					errorMsg.push(timeToComeBack);
 				});
 			} else {
 				return res.json();
 			}
 		})
-		.then(user => (userGhData = user));
-	// .catch(err => {
-	// 	console.log(err);
-	// });
-	// .catch(err => console.log(err, "asd"))
-	// .then(user => {
-	// 	userGhData = user;
-	// });
+		.then(user => {
+			userGhData = user;
+		});
 }
 
 async function getUserRepos(nick) {
+	// const user = await fetch(`https://api.github.com/users/${nick}`).then(res =>
+	// 	res.json()
+	// );
+
 	const repos = await fetch(`${userGhData["repos_url"]}`).then(res =>
 		res.json()
 	);
@@ -87,17 +91,19 @@ async function getUserRepos(nick) {
 }
 
 const fillUserHeader = data => {
-	const userName = document.querySelector("#profile__name");
-	const userAvatar = document.querySelector("#profile__avatar img");
-	const userFollowers = document.querySelector("#profile__followers");
-	const userFollowLink = document.querySelector("#profile__follow a");
+	if (userGhData !== undefined) {
+		const userName = document.querySelector("#profile__name");
+		const userAvatar = document.querySelector("#profile__avatar img");
+		const userFollowers = document.querySelector("#profile__followers");
+		const userFollowLink = document.querySelector("#profile__follow a");
 
-	userName.textContent = data.name;
-	userName.href = data["html_url"];
-	userAvatar.src = data["avatar_url"];
-	userFollowers.textContent = data.followers;
-	userFollowLink.textContent = `Follow @${data.login}`;
-	userFollowLink.href = data["html_url"];
+		userName.textContent = data.name;
+		userName.href = data["html_url"];
+		userAvatar.src = data["avatar_url"];
+		userFollowers.textContent = data.followers;
+		userFollowLink.textContent = `Follow @${data.login}`;
+		userFollowLink.href = data["html_url"];
+	}
 };
 
 const createLanguagesList = languages => {
