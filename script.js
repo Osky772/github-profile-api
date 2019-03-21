@@ -4,6 +4,9 @@ const ghUserNameForm = document.querySelector("#find-user");
 const repoList = document.querySelector("#repo__list");
 const maxReposInput = document.querySelector("#gh-reposNum");
 const languagesList = document.querySelector("#profile__languages");
+const inputLastUpdated = document.querySelector("#last-updated");
+const inputMostStarred = document.querySelector("#most-starred");
+const formChooseRepoSorting = document.querySelector("#choose-repo-sorting");
 
 let userGhData = {};
 let userGhRepos = [];
@@ -62,7 +65,7 @@ async function getUserData(nick) {
 	userGhRepos = repos;
 
 	fillUserHeader(userGhData);
-	sortReposByUpdate(userGhRepos);
+	sortRepos(userGhRepos);
 	renderUserRepos(userGhRepos);
 }
 
@@ -117,10 +120,27 @@ const renderUserRepos = userGhRepos => {
 	});
 };
 
-const sortReposByUpdate = repos => {
-	return repos.sort((a, b) => {
-		return new Date(b["updated_at"]) * 1 - new Date(a["updated_at"]) * 1;
-	});
+inputLastUpdated.addEventListener("click", function(e) {
+	console.log(e.target.value, e.target.checked);
+	e.target.checked ? (e.target.value = "off") : (e.target.value = "on");
+	sortRepos(userGhRepos);
+});
+
+const sortRepos = repos => {
+	if (inputLastUpdated.checked) {
+		const sorted = repos.sort((a, b) => {
+			return new Date(b["updated_at"]) * 1 - new Date(a["updated_at"]) * 1;
+		});
+		renderUserRepos(sorted);
+	} else {
+		const sorted = repos.sort((a, b) => {
+			return (
+				new Date(b["stargazers_count"]) * 1 -
+				new Date(a["stargazers_count"]) * 1
+			);
+		});
+		renderUserRepos(sorted);
+	}
 };
 
 ghUserNameForm.addEventListener("submit", function(e) {
