@@ -18,7 +18,11 @@ function getUserData(nick) {
 	fetch(`https://api.github.com/users/${nick}`)
 		.then(res => {
 			if (!res.ok) {
-				res.json().then(error => console.log(error));
+				res.json().then(error => {
+					const msg = error.message;
+					const end = msg.indexOf("(");
+					console.log(msg.slice(0, end));
+				});
 			} else {
 				return res.json();
 			}
