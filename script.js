@@ -34,6 +34,7 @@ function getUserData(nick) {
 		})
 		.then(user => {
 			userGhData = user;
+			fillUserHeader(userGhData);
 		});
 }
 
@@ -91,18 +92,23 @@ async function getUserRepos(nick) {
 }
 
 const fillUserHeader = data => {
+	const profile = document.querySelector("#profile");
+	const userName = document.querySelector("#profile__name");
+	const userAvatar = document.querySelector("#profile__avatar img");
+	const userFollowers = document.querySelector("#profile__followers");
+	const userFollowLink = document.querySelector("#profile__follow a");
 	if (userGhData !== undefined) {
-		const userName = document.querySelector("#profile__name");
-		const userAvatar = document.querySelector("#profile__avatar img");
-		const userFollowers = document.querySelector("#profile__followers");
-		const userFollowLink = document.querySelector("#profile__follow a");
-
 		userName.textContent = data.name;
 		userName.href = data["html_url"];
 		userAvatar.src = data["avatar_url"];
 		userFollowers.textContent = data.followers;
 		userFollowLink.textContent = `Follow @${data.login}`;
 		userFollowLink.href = data["html_url"];
+	} else {
+		console.log(Array.from(profile.children));
+		Array.from(profile.children).forEach(element => {
+			element.style.display = "none";
+		});
 	}
 };
 
