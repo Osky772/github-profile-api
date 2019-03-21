@@ -5,26 +5,40 @@ const repoList = document.querySelector("#repo__list");
 const maxReposInput = document.querySelector("#gh-reposNum");
 const languagesList = document.querySelector("#profile__languages");
 const inputLastUpdated = document.querySelector("#last-updated");
+const labelLastUpdated = document.querySelector("#label-last-updated");
+const labelMostStarred = document.querySelector("#label-most-starred");
 const inputMostStarred = document.querySelector("#most-starred");
-const formChooseRepoSorting = document.querySelector("#choose-repo-sorting");
 
 let userGhData = {};
 let userGhRepos = [];
 let reposToRender = [];
 let topLanguages;
 
-async function getUserData(nick) {
-	const user = await fetch(
-		`https://api.github.com/users/${nick}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}`
-	).then(res => res.json());
+function getUserData(nick) {
+	fetch(`https://api.github.com/users/${nick}`)
+		.then(res => {
+			if (!res.ok) {
+				res.json().then(error => console.log(error));
+			} else {
+				return res.json();
+			}
+		})
+		.then(user => (userGhData = user));
+	// .catch(err => {
+	// 	console.log(err);
+	// });
+	// .catch(err => console.log(err, "asd"))
+	// .then(user => {
+	// 	userGhData = user;
+	// });
+}
 
-	const repos = await fetch(
-		`${user["repos_url"]}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}`
-	).then(res => res.json());
+async function getUserRepos(nick) {
+	const repos = await fetch(`${userGhData["repos_url"]}`).then(res =>
+		res.json()
+	);
 	const languageUrls = repos.map(repo => {
-		return `${
-			repo["languages_url"]
-		}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}`;
+		return `${repo["languages_url"]}`;
 	});
 
 	const requests = languageUrls.map(url => fetch(url));
@@ -61,7 +75,6 @@ async function getUserData(nick) {
 			topLanguages = result;
 			createLanguagesList(topLanguages);
 		});
-	userGhData = user;
 	userGhRepos = repos;
 
 	fillUserHeader(userGhData);
@@ -121,13 +134,23 @@ const renderUserRepos = userGhRepos => {
 };
 
 inputLastUpdated.addEventListener("click", function(e) {
-	console.log(e.target.value, e.target.checked);
-	e.target.checked ? (e.target.value = "off") : (e.target.value = "on");
+	labelLastUpdated.classList.add("selected");
+	labelMostStarred.classList.remove("selected");
+	inputMostStarred.value = "";
+	e.target.value = "on";
+	sortRepos(userGhRepos);
+});
+
+inputMostStarred.addEventListener("click", function(e) {
+	labelMostStarred.classList.add("selected");
+	labelLastUpdated.classList.remove("selected");
+	inputLastUpdated.value = "";
+	e.target.value = "on";
 	sortRepos(userGhRepos);
 });
 
 const sortRepos = repos => {
-	if (inputLastUpdated.checked) {
+	if (inputLastUpdated.value === "on") {
 		const sorted = repos.sort((a, b) => {
 			return new Date(b["updated_at"]) * 1 - new Date(a["updated_at"]) * 1;
 		});
