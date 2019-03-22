@@ -1,6 +1,7 @@
 const getUserInput = document.querySelector("#gh-username");
 const sendButton = document.querySelector("#send");
 const ghUserNameForm = document.querySelector("#find-user");
+const profile = document.querySelector("#profile");
 const reposHeader = document.querySelector("#repos__header");
 const repoList = document.querySelector("#repo__list");
 const maxReposInput = document.querySelector("#gh-reposNum");
@@ -16,9 +17,6 @@ let gitHubUser = {
 	repos: [],
 	topLanguages: []
 };
-
-let reposToRender = [];
-let topLanguages;
 let error = {};
 
 async function getUserData(nick) {
@@ -33,11 +31,11 @@ async function getUserData(nick) {
 					const end = err.message.indexOf("(");
 					error.message =
 						end !== -1 ? err.message.slice(0, end) : err.message.slice(0);
-					error.resetTime = resetTime;
+					error.resetTime = new Date(resetTime * 1000);
 				});
 			} else if (res.status === 404) {
 				error.message = "User not found.";
-				error.isUserFound = false;
+				error.isWrongUser = true;
 			} else {
 				return res.json();
 			}
@@ -49,6 +47,7 @@ async function getUserData(nick) {
 		});
 	await getGithubRepos();
 	await getUserTopLanguages();
+	profile.style.display = "block";
 }
 
 async function getGithubRepos() {
@@ -155,21 +154,25 @@ async function getUserTopLanguages() {
 // }
 
 const createErrorDiv = () => {
-	const profile = document.querySelector("#profile");
 	Array.from(profile.children).forEach(element => {
 		element.classList.add("hide");
 	});
 	errorDiv.style.display = "flex";
 	errorDiv.classList.add("error");
 	errorDiv.classList.remove("hide");
-	if (!error.isUserFound && Boolean(error.resetTime)) {
+
+	if (error.resetTime) {
+		let remainingTime = error.resetTime.getMinutes() - new Date().getMinutes();
+		remainingTime = remainingTime < 0 ? 60 + remainingTime : remainingTime;
 		errorDiv.innerHTML = `
 		<p>${error.message}</p>
-		<p class="remain">Come back at ${error.remain}</p>
+		<p class="remain">Come back after ${remainingTime} minutes.</p>
 	`;
-	} else {
+	} else if (error.isWrongUser) {
+		console.log("err");
 		errorDiv.innerHTML = `<p>${error.message}</p>`;
 	}
+
 	profile.append(errorDiv);
 };
 
@@ -286,4 +289,8 @@ ghUserNameForm.addEventListener("submit", function(e) {
 
 maxReposInput.addEventListener("mouseup", function(e) {
 	renderUserRepos(gitHubUser.repos);
+});
+
+window.addEventListener("load", e => {
+	getUserData("osky772");
 });
