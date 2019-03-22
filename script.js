@@ -13,7 +13,8 @@ const errorDiv = document.createElement("div");
 
 let gitHubUser = {
 	data: {},
-	repos: []
+	repos: [],
+	topLanguages: []
 };
 
 let reposToRender = [];
@@ -45,50 +46,66 @@ async function getUserData(nick) {
 			removeErrorDiv();
 			gitHubUser.data = user;
 			fillUserHeader(gitHubUser.data);
-			getGithubRepos();
 		});
+	await getGithubRepos();
+	await getUserTopLanguages();
+	console.log(gitHubUser.repos);
 }
 
 async function getGithubRepos() {
-	if (!error.message) {
-		gitHubUser.repos = await fetch(
-			`${gitHubUser.data["repos_url"]}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
-		).then(res => res.json());
+	if (error.message) {
+		return;
 	}
+
+	gitHubUser.repos = await fetch(
+		`${gitHubUser.data["repos_url"]}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
+	).then(res => res.json());
+
+	renderUserRepos(gitHubUser.repos);
 }
-// const eachRepoLanguages = repos.map(repo => {
-// 	return {
-// 		[repo.language]: repo.size
-// 	};
-// });
 
-// const uniqueLangs = [
-// 	...new Set(
-// 		eachRepoLanguages
-// 			.map(repo => Object.keys(repo))
-// 			.reduce((acc, next) => acc.concat(next), [])
-// 			.filter(lang => lang !== "null")
-// 	)
-// ];
+async function getUserTopLanguages() {
+	if (error.message) {
+		return;
+	}
 
-// const eachLangSize = uniqueLangs.map(lang => {
-// 	return eachRepoLanguages
-// 		.filter(repo => repo[lang] !== undefined)
-// 		.reduce((acc, next) => {
-// 			return acc + next[lang];
-// 		}, 0);
-// });
+	const eachRepoLanguages = gitHubUser.repos.map(repo => {
+		return {
+			[repo.language]: repo.size
+		};
+	});
 
-// const topLanguages = eachLangSize
-// 	.reduce((result, size, index) => {
-// 		result.push({
-// 			name: uniqueLangs[index],
-// 			size
-// 		});
-// 		return result;
-// 	}, [])
-// 	.sort((a, b) => b.size - a.size)
-// 	.slice(0, 3);
+	const uniqueLangs = [
+		...new Set(
+			eachRepoLanguages
+				.map(repo => Object.keys(repo))
+				.reduce((acc, next) => acc.concat(next), [])
+				.filter(lang => lang !== "null")
+		)
+	];
+
+	const eachLangSize = uniqueLangs.map(lang => {
+		return eachRepoLanguages
+			.filter(repo => repo[lang] !== undefined)
+			.reduce((acc, next) => {
+				return acc + next[lang];
+			}, 0);
+	});
+
+	const topLanguages = eachLangSize
+		.reduce((result, size, index) => {
+			result.push({
+				name: uniqueLangs[index],
+				size
+			});
+			return result;
+		}, [])
+		.sort((a, b) => b.size - a.size)
+		.slice(0, 3);
+
+	gitHubUser.topLanguages = topLanguages;
+	createLanguagesList(gitHubUser.topLanguages);
+}
 
 // const topLanguages = uniqueLangs
 // 	.map(unique => {
@@ -135,7 +152,6 @@ async function getGithubRepos() {
 // 		topLanguages = result;
 // 	});
 
-// 	gitHubUser.repos = repos;
 // 	createLanguagesList(topLanguages);
 // 	sortRepos(gitHubUser.repos);
 // 	renderUserRepos(gitHubUser.repos);
