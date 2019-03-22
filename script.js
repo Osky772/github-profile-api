@@ -1,6 +1,7 @@
 const getUserInput = document.querySelector("#gh-username");
 const sendButton = document.querySelector("#send");
 const ghUserNameForm = document.querySelector("#find-user");
+const reposHeader = document.querySelector("#repos__header");
 const repoList = document.querySelector("#repo__list");
 const maxReposInput = document.querySelector("#gh-reposNum");
 const languagesList = document.querySelector("#profile__languages");
@@ -13,20 +14,24 @@ let userGhData = {};
 let userGhRepos = [];
 let reposToRender = [];
 let topLanguages;
-let errorMsg = [];
+let errorMsg = {};
 
-function getUserData(nick) {
-	fetch(`https://api.github.com/users/${nick}`)
+async function getUserData(nick) {
+	await fetch(
+		`https://api.github.com/users/${nick}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
+	)
 		.then(res => {
-			const start = moment();
-			const end = moment(new Date(res.headers.get("X-RateLimit-Reset") * 1000));
-			const timeToComeBack = end.from(start, true);
 			if (!res.ok) {
+				const start = moment();
+				const end = moment(
+					new Date(res.headers.get("X-RateLimit-Reset") * 1000)
+				);
+				const timeToComeBack = end.from(start, true);
 				res.json().then(error => {
 					const msg = error.message;
 					const end = msg.indexOf("(");
-					errorMsg.push(msg.slice(0, end));
-					errorMsg.push(timeToComeBack);
+					errorMsg["message"] = msg.slice(0, end);
+					errorMsg["remain"] = timeToComeBack;
 				});
 			} else {
 				return res.json();
@@ -36,18 +41,12 @@ function getUserData(nick) {
 			userGhData = user;
 			fillUserHeader(userGhData);
 		});
-}
 
-async function getUserRepos(nick) {
-	// const user = await fetch(`https://api.github.com/users/${nick}`).then(res =>
-	// 	res.json()
-	// );
-
-	const repos = await fetch(`${userGhData["repos_url"]}`).then(res =>
-		res.json()
-	);
+	const repos = await fetch(
+		`${userGhData["repos_url"]}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
+	).then(res => res.json());
 	const languageUrls = repos.map(repo => {
-		return `${repo["languages_url"]}`;
+		return `${repo["languages_url"]}`; // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
 	});
 
 	const requests = languageUrls.map(url => fetch(url));
@@ -91,6 +90,8 @@ async function getUserRepos(nick) {
 	renderUserRepos(userGhRepos);
 }
 
+async function getUserRepos(nick) {}
+
 const fillUserHeader = data => {
 	const profile = document.querySelector("#profile");
 	const userName = document.querySelector("#profile__name");
@@ -105,10 +106,15 @@ const fillUserHeader = data => {
 		userFollowLink.textContent = `Follow @${data.login}`;
 		userFollowLink.href = data["html_url"];
 	} else {
-		console.log(Array.from(profile.children));
 		Array.from(profile.children).forEach(element => {
 			element.style.display = "none";
 		});
+		profile.innerHTML = `
+		<div class="error">
+			<p>${errorMsg.message}</p>
+			<p class="remain">Come back in ${errorMsg.remain}</p>
+		</div>
+		`;
 	}
 };
 
@@ -150,6 +156,7 @@ const renderUserRepos = userGhRepos => {
 };
 
 inputLastUpdated.addEventListener("click", function(e) {
+	reposHeader.textContent = "Last updated repositiories";
 	labelLastUpdated.classList.add("selected");
 	labelMostStarred.classList.remove("selected");
 	inputMostStarred.value = "";
@@ -158,6 +165,7 @@ inputLastUpdated.addEventListener("click", function(e) {
 });
 
 inputMostStarred.addEventListener("click", function(e) {
+	reposHeader.textContent = "Most starred repositories";
 	labelMostStarred.classList.add("selected");
 	labelLastUpdated.classList.remove("selected");
 	inputLastUpdated.value = "";
@@ -186,6 +194,7 @@ ghUserNameForm.addEventListener("submit", function(e) {
 	e.preventDefault();
 	const userNickname = getUserInput.value;
 	getUserData(userNickname);
+	getUserRepos(userNickname);
 });
 
 maxReposInput.addEventListener("mouseup", function(e) {

@@ -74,6 +74,18 @@ form {
     font-weight: bold !important;
 }
 
+.error {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.remain {
+    font-weight: bold
+}
+
 #profile__header {
     display: flex;
     margin-top: 1rem;
