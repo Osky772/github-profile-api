@@ -49,19 +49,16 @@ async function getUserData(nick) {
 		});
 	await getGithubRepos();
 	await getUserTopLanguages();
-	console.log(gitHubUser.repos);
 }
 
 async function getGithubRepos() {
-	if (error.message) {
-		return;
+	if (!error.message) {
+		gitHubUser.repos = await fetch(
+			`${gitHubUser.data["repos_url"]}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
+		).then(res => res.json());
+
+		renderUserRepos(gitHubUser.repos);
 	}
-
-	gitHubUser.repos = await fetch(
-		`${gitHubUser.data["repos_url"]}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
-	).then(res => res.json());
-
-	renderUserRepos(gitHubUser.repos);
 }
 
 async function getUserTopLanguages() {
@@ -165,12 +162,14 @@ const createErrorDiv = () => {
 	errorDiv.style.display = "flex";
 	errorDiv.classList.add("error");
 	errorDiv.classList.remove("hide");
-	error.isUserFound
-		? (errorDiv.innerHTML = `
+	if (!error.isUserFound && Boolean(error.resetTime)) {
+		errorDiv.innerHTML = `
 		<p>${error.message}</p>
 		<p class="remain">Come back at ${error.remain}</p>
-	`)
-		: (errorDiv.innerHTML = `<p>${error.message}</p>`);
+	`;
+	} else {
+		errorDiv.innerHTML = `<p>${error.message}</p>`;
+	}
 	profile.append(errorDiv);
 };
 
