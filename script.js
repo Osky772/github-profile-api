@@ -51,7 +51,7 @@ async function getUserData(nick) {
 }
 
 async function getGithubRepos() {
-	if (!error.message) {
+	if (!error.message && gitHubUser.data !== undefined) {
 		gitHubUser.repos = await fetch(
 			`${gitHubUser.data["repos_url"]}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
 		).then(res => res.json());
@@ -274,16 +274,11 @@ const sortRepos = repos => {
 
 ghUserNameForm.addEventListener("submit", function(e) {
 	e.preventDefault();
-	Array.from(profile.children).forEach(element => {
-		element.classList.remove("hide");
-	});
 	gitHubUser.data = {};
 	gitHubUser.repos = {};
 	reposToRender = [];
 	topLanguages = null;
-	error = {};
 	const userNickname = getUserInput.value;
-	removeErrorDiv();
 	getUserData(userNickname);
 });
 
