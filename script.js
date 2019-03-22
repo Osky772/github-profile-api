@@ -11,7 +11,10 @@ const labelMostStarred = document.querySelector("#label-most-starred");
 const inputMostStarred = document.querySelector("#most-starred");
 const errorDiv = document.createElement("div");
 
-let userGhData = {};
+let gitHubUser = {
+	data: {}
+};
+
 let userGhRepos = [];
 let reposToRender = [];
 let topLanguages;
@@ -39,12 +42,12 @@ async function getUserData(nick) {
 		})
 		.then(user => {
 			removeErrorDiv();
-			userGhData = user;
-			fillUserHeader(userGhData);
+			gitHubUser.data = user;
+			fillUserHeader(gitHubUser.data);
 		});
 
 	const repos = await fetch(
-		`${userGhData["repos_url"]}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
+		`${gitHubUser.data["repos_url"]}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
 	).then(res => res.json());
 
 	const eachRepoLanguages = repos.map(repo => {
@@ -159,7 +162,7 @@ const fillUserHeader = data => {
 	const userAvatar = document.querySelector("#profile__avatar img");
 	const userFollowers = document.querySelector("#profile__followers");
 	const userFollowLink = document.querySelector("#profile__follow a");
-	if (userGhData !== undefined) {
+	if (gitHubUser.data !== undefined) {
 		userName.textContent = data.name;
 		userName.href = data["html_url"];
 		userAvatar.src = data["avatar_url"];
@@ -248,7 +251,7 @@ ghUserNameForm.addEventListener("submit", function(e) {
 	Array.from(profile.children).forEach(element => {
 		element.classList.remove("hide");
 	});
-	userGhData = {};
+	gitHubUser.data = {};
 	userGhRepos = {};
 	reposToRender = [];
 	topLanguages = null;
