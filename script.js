@@ -12,10 +12,10 @@ const inputMostStarred = document.querySelector("#most-starred");
 const errorDiv = document.createElement("div");
 
 let gitHubUser = {
-	data: {}
+	data: {},
+	repos: []
 };
 
-let userGhRepos = [];
 let reposToRender = [];
 let topLanguages;
 let error = {};
@@ -36,6 +36,7 @@ async function getUserData(nick) {
 				});
 			} else if (res.status === 404) {
 				error.message = "User not found.";
+				error.isUserFound = false;
 			} else {
 				return res.json();
 			}
@@ -44,96 +45,101 @@ async function getUserData(nick) {
 			removeErrorDiv();
 			gitHubUser.data = user;
 			fillUserHeader(gitHubUser.data);
+			getGithubRepos();
 		});
-
-	const repos = await fetch(
-		`${gitHubUser.data["repos_url"]}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
-	).then(res => res.json());
-
-	const eachRepoLanguages = repos.map(repo => {
-		return {
-			[repo.language]: repo.size
-		};
-	});
-
-	const uniqueLangs = [
-		...new Set(
-			eachRepoLanguages
-				.map(repo => Object.keys(repo))
-				.reduce((acc, next) => acc.concat(next), [])
-				.filter(lang => lang !== "null")
-		)
-	];
-
-	const eachLangSize = uniqueLangs.map(lang => {
-		return eachRepoLanguages
-			.filter(repo => repo[lang] !== undefined)
-			.reduce((acc, next) => {
-				return acc + next[lang];
-			}, 0);
-	});
-
-	const topLanguages = eachLangSize
-		.reduce((result, size, index) => {
-			result.push({
-				name: uniqueLangs[index],
-				size
-			});
-			return result;
-		}, [])
-		.sort((a, b) => b.size - a.size)
-		.slice(0, 3);
-
-	// const topLanguages = uniqueLangs
-	// 	.map(unique => {
-	// 		return eachRepoLanguages.filter(lang => lang === unique);
-	// 	})
-	// 	.sort((a, b) => b.length - a.length)
-	// 	.slice(0, 3);
-
-	// const languageUrls = repos.map(repo => {
-	// 	return `${repo["languages_url"]}`; // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
-	// });
-
-	// const requests = languageUrls.map(url => fetch(url));
-	// Promise.all(requests)
-	// 	.then(responses => responses.map(res => res))
-	// 	.then(responses => Promise.all(responses.map(r => r.json())))
-	// 	.then(value => {
-	// 		let languages = value;
-
-	// const uniqueLangs = [
-	// 	...new Set(
-	// 		languages
-	// 			.map(repo => Object.keys(repo))
-	// 			.reduce((acc, next) => acc.concat(next), [])
-	// 	)
-	// ];
-
-	// const eachLangSize = uniqueLangs.map(lang => {
-	// 	return languages
-	// 		.filter(repo => repo[lang] !== undefined)
-	// 		.reduce((acc, next) => acc + next[lang], 0);
-	// });
-
-	// const result = eachLangSize
-	// 	.reduce((result, size, index) => {
-	// 		result.push({
-	// 			name: uniqueLangs[index],
-	// 			size
-	// 		});
-	// 		return result;
-	// 	}, [])
-	// 	.sort((a, b) => b.size - a.size)
-	// 	.slice(0, 3);
-	// 		topLanguages = result;
-	// 	});
-
-	userGhRepos = repos;
-	createLanguagesList(topLanguages);
-	sortRepos(userGhRepos);
-	renderUserRepos(userGhRepos);
 }
+
+async function getGithubRepos() {
+	if (!error.message) {
+		gitHubUser.repos = await fetch(
+			`${gitHubUser.data["repos_url"]}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
+		).then(res => res.json());
+	}
+}
+// const eachRepoLanguages = repos.map(repo => {
+// 	return {
+// 		[repo.language]: repo.size
+// 	};
+// });
+
+// const uniqueLangs = [
+// 	...new Set(
+// 		eachRepoLanguages
+// 			.map(repo => Object.keys(repo))
+// 			.reduce((acc, next) => acc.concat(next), [])
+// 			.filter(lang => lang !== "null")
+// 	)
+// ];
+
+// const eachLangSize = uniqueLangs.map(lang => {
+// 	return eachRepoLanguages
+// 		.filter(repo => repo[lang] !== undefined)
+// 		.reduce((acc, next) => {
+// 			return acc + next[lang];
+// 		}, 0);
+// });
+
+// const topLanguages = eachLangSize
+// 	.reduce((result, size, index) => {
+// 		result.push({
+// 			name: uniqueLangs[index],
+// 			size
+// 		});
+// 		return result;
+// 	}, [])
+// 	.sort((a, b) => b.size - a.size)
+// 	.slice(0, 3);
+
+// const topLanguages = uniqueLangs
+// 	.map(unique => {
+// 		return eachRepoLanguages.filter(lang => lang === unique);
+// 	})
+// 	.sort((a, b) => b.length - a.length)
+// 	.slice(0, 3);
+
+// const languageUrls = repos.map(repo => {
+// 	return `${repo["languages_url"]}`; // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
+// });
+
+// const requests = languageUrls.map(url => fetch(url));
+// Promise.all(requests)
+// 	.then(responses => responses.map(res => res))
+// 	.then(responses => Promise.all(responses.map(r => r.json())))
+// 	.then(value => {
+// 		let languages = value;
+
+// const uniqueLangs = [
+// 	...new Set(
+// 		languages
+// 			.map(repo => Object.keys(repo))
+// 			.reduce((acc, next) => acc.concat(next), [])
+// 	)
+// ];
+
+// const eachLangSize = uniqueLangs.map(lang => {
+// 	return languages
+// 		.filter(repo => repo[lang] !== undefined)
+// 		.reduce((acc, next) => acc + next[lang], 0);
+// });
+
+// const result = eachLangSize
+// 	.reduce((result, size, index) => {
+// 		result.push({
+// 			name: uniqueLangs[index],
+// 			size
+// 		});
+// 		return result;
+// 	}, [])
+// 	.sort((a, b) => b.size - a.size)
+// 	.slice(0, 3);
+// 		topLanguages = result;
+// 	});
+
+// 	gitHubUser.repos = repos;
+// 	createLanguagesList(topLanguages);
+// 	sortRepos(gitHubUser.repos);
+// 	renderUserRepos(gitHubUser.repos);
+// }
 
 const createErrorDiv = () => {
 	const profile = document.querySelector("#profile");
@@ -184,9 +190,9 @@ const createLanguagesList = languages => {
 	});
 };
 
-const renderUserRepos = userGhRepos => {
+const renderUserRepos = repos => {
 	const maxRepos = Number(maxReposInput.value);
-	reposToRender = userGhRepos.slice(0, maxRepos);
+	reposToRender = repos.slice(0, maxRepos);
 
 	const exisitingLinks = document.querySelectorAll(".repo-link");
 	if (exisitingLinks.length !== 0) {
@@ -217,7 +223,7 @@ inputLastUpdated.addEventListener("click", function(e) {
 	labelMostStarred.classList.remove("selected");
 	inputMostStarred.value = "";
 	e.target.value = "on";
-	sortRepos(userGhRepos);
+	sortRepos(gitHubUser.repos);
 });
 
 inputMostStarred.addEventListener("click", function(e) {
@@ -226,7 +232,7 @@ inputMostStarred.addEventListener("click", function(e) {
 	labelLastUpdated.classList.remove("selected");
 	inputLastUpdated.value = "";
 	e.target.value = "on";
-	sortRepos(userGhRepos);
+	sortRepos(gitHubUser.repos);
 });
 
 const sortRepos = repos => {
@@ -252,7 +258,7 @@ ghUserNameForm.addEventListener("submit", function(e) {
 		element.classList.remove("hide");
 	});
 	gitHubUser.data = {};
-	userGhRepos = {};
+	gitHubUser.repos = {};
 	reposToRender = [];
 	topLanguages = null;
 	error = {};
@@ -262,5 +268,5 @@ ghUserNameForm.addEventListener("submit", function(e) {
 });
 
 maxReposInput.addEventListener("mouseup", function(e) {
-	renderUserRepos(userGhRepos);
+	renderUserRepos(gitHubUser.repos);
 });
