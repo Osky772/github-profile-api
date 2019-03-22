@@ -22,7 +22,7 @@ let error = {};
 
 async function fetchGitHubUserData(nick) {
 	await fetch(
-		`https://api.github.com/users/${nick}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
+		`https://api.github.com/users/${nick}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
 	)
 		.then(res => {
 			if (res.status === 403) {
@@ -54,9 +54,7 @@ async function fetchGitHubUserData(nick) {
 async function getGithubRepos() {
 	if (!error.message && gitHubUser.data !== undefined) {
 		gitHubUser.repos = await fetch(
-			`${
-				gitHubUser.data["repos_url"]
-			}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
+			`${gitHubUser.data["repos_url"]}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
 		).then(res => res.json());
 
 		sortRepos(gitHubUser.repos);
