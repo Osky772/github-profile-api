@@ -9,6 +9,7 @@ const inputLastUpdated = document.querySelector("#last-updated");
 const labelLastUpdated = document.querySelector("#label-last-updated");
 const labelMostStarred = document.querySelector("#label-most-starred");
 const inputMostStarred = document.querySelector("#most-starred");
+const errorDiv = document.createElement("div");
 
 let userGhData = {};
 let userGhRepos = [];
@@ -18,19 +19,18 @@ let errorMsg = {};
 
 async function getUserData(nick) {
 	await fetch(
-		`https://api.github.com/users/${nick}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
+		`https://api.github.com/users/${nick}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
 	)
 		.then(res => {
 			if (!res.ok) {
-				const start = moment();
-				const end = moment(
+				const timeToComeBack = moment(
 					new Date(res.headers.get("X-RateLimit-Reset") * 1000)
-				);
-				const timeToComeBack = end.from(start, true);
+				).format("h:mm:ss");
 				res.json().then(error => {
+					console.log(error);
 					const msg = error.message;
 					const end = msg.indexOf("(");
-					errorMsg["message"] = msg.slice(0, end);
+					errorMsg["message"] = end !== -1 ? msg.slice(0, end) : msg.slice(0);
 					errorMsg["remain"] = timeToComeBack;
 				});
 			} else {
@@ -38,6 +38,7 @@ async function getUserData(nick) {
 			}
 		})
 		.then(user => {
+			removeErrorDiv();
 			userGhData = user;
 			fillUserHeader(userGhData);
 		});
@@ -90,10 +91,29 @@ async function getUserData(nick) {
 	renderUserRepos(userGhRepos);
 }
 
-async function getUserRepos(nick) {}
+const createErrorDiv = () => {
+	const profile = document.querySelector("#profile");
+	Array.from(profile.children).forEach(element => {
+		element.classList.add("hide");
+	});
+	errorDiv.style.display = "flex";
+	errorDiv.classList.add("error");
+	errorDiv.classList.remove("hide");
+	errorDiv.innerHTML = `
+		<p>${errorMsg.message}</p>
+		<p class="remain">Come back at ${errorMsg.remain}</p>
+	`;
+	profile.append(errorDiv);
+};
+
+const removeErrorDiv = () => {
+	Array.from(profile.children).forEach(element => {
+		element.classList.remove("hide");
+	});
+	errorDiv.style.display = "none";
+};
 
 const fillUserHeader = data => {
-	const profile = document.querySelector("#profile");
 	const userName = document.querySelector("#profile__name");
 	const userAvatar = document.querySelector("#profile__avatar img");
 	const userFollowers = document.querySelector("#profile__followers");
@@ -106,15 +126,7 @@ const fillUserHeader = data => {
 		userFollowLink.textContent = `Follow @${data.login}`;
 		userFollowLink.href = data["html_url"];
 	} else {
-		Array.from(profile.children).forEach(element => {
-			element.style.display = "none";
-		});
-		profile.innerHTML = `
-		<div class="error">
-			<p>${errorMsg.message}</p>
-			<p class="remain">Come back in ${errorMsg.remain}</p>
-		</div>
-		`;
+		createErrorDiv();
 	}
 };
 
@@ -192,9 +204,17 @@ const sortRepos = repos => {
 
 ghUserNameForm.addEventListener("submit", function(e) {
 	e.preventDefault();
+	Array.from(profile.children).forEach(element => {
+		element.classList.remove("hide");
+	});
+	userGhData = {};
+	userGhRepos = {};
+	reposToRender = [];
+	topLanguages = null;
+	errorMsg = {};
 	const userNickname = getUserInput.value;
+	removeErrorDiv();
 	getUserData(userNickname);
-	getUserRepos(userNickname);
 });
 
 maxReposInput.addEventListener("mouseup", function(e) {

@@ -74,6 +74,10 @@ form {
     font-weight: bold !important;
 }
 
+.hide {
+    display: none;
+}
+
 .error {
     height: 100%;
     display: flex;
