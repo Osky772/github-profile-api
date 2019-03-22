@@ -165,10 +165,12 @@ const createErrorDiv = () => {
 	errorDiv.style.display = "flex";
 	errorDiv.classList.add("error");
 	errorDiv.classList.remove("hide");
-	errorDiv.innerHTML = `
+	error.isUserFound
+		? (errorDiv.innerHTML = `
 		<p>${error.message}</p>
 		<p class="remain">Come back at ${error.remain}</p>
-	`;
+	`)
+		: (errorDiv.innerHTML = `<p>${error.message}</p>`);
 	profile.append(errorDiv);
 };
 
