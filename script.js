@@ -17,11 +17,12 @@ let gitHubUser = {
 	repos: [],
 	topLanguages: []
 };
+let reposToRender;
 let error = {};
 
-async function getUserData(nick) {
+async function fetchGitHubUserData(nick) {
 	await fetch(
-		`https://api.github.com/users/${nick}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
+		`https://api.github.com/users/${nick}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
 	)
 		.then(res => {
 			if (res.status === 403) {
@@ -53,10 +54,12 @@ async function getUserData(nick) {
 async function getGithubRepos() {
 	if (!error.message && gitHubUser.data !== undefined) {
 		gitHubUser.repos = await fetch(
-			`${gitHubUser.data["repos_url"]}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
+			`${
+				gitHubUser.data["repos_url"]
+			}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
 		).then(res => res.json());
 
-		renderUserRepos(gitHubUser.repos);
+		sortRepos(gitHubUser.repos);
 	}
 }
 
@@ -212,28 +215,28 @@ const createLanguagesList = languages => {
 
 const renderUserRepos = repos => {
 	const maxRepos = Number(maxReposInput.value);
-	reposToRender = repos.slice(0, maxRepos);
 
 	const exisitingLinks = document.querySelectorAll(".repo-link");
 	if (exisitingLinks.length !== 0) {
 		exisitingLinks.forEach(el => el.remove());
 	}
+	repos.forEach((repo, i) => {
+		if (i < maxRepos) {
+			const repoLink = document.createElement("a");
+			repoLink.classList.add("repo-link");
+			repoLink.href = repo["html_url"];
 
-	reposToRender.forEach((repo, i) => {
-		const repoLink = document.createElement("a");
-		repoLink.classList.add("repo-link");
-		repoLink.href = repo["html_url"];
+			const updatedAt = new Date(repo["updated_at"]).toLocaleDateString();
 
-		const updatedAt = moment(repo["updated_at"]).calendar("sameDay");
-
-		repoLink.innerHTML = `
+			repoLink.innerHTML = `
             <span class="repo-name">${repo.name}</span>
             <span class="repo-update">Updated: ${updatedAt}</span>
             <span class="repo-starred">${
 							repo.stargazers_count
 						} <i class="fas fa-star"></i></span>
             `;
-		repoList.appendChild(repoLink);
+			repoList.appendChild(repoLink);
+		}
 	});
 };
 
@@ -257,18 +260,21 @@ inputMostStarred.addEventListener("click", function(e) {
 
 const sortRepos = repos => {
 	if (inputLastUpdated.value === "on") {
-		const sorted = repos.sort((a, b) => {
-			return new Date(b["updated_at"]) * 1 - new Date(a["updated_at"]) * 1;
+		repos.sort((a, b) => {
+			return (
+				new Date(b["updated_at"]).getTime() -
+				new Date(a["updated_at"]).getTime()
+			);
 		});
-		renderUserRepos(sorted);
+		renderUserRepos(repos);
 	} else {
-		const sorted = repos.sort((a, b) => {
+		repos.sort((a, b) => {
 			return (
 				new Date(b["stargazers_count"]) * 1 -
 				new Date(a["stargazers_count"]) * 1
 			);
 		});
-		renderUserRepos(sorted);
+		renderUserRepos(repos);
 	}
 };
 
@@ -279,7 +285,7 @@ ghUserNameForm.addEventListener("submit", function(e) {
 	reposToRender = [];
 	topLanguages = null;
 	const userNickname = getUserInput.value;
-	getUserData(userNickname);
+	fetchGitHubUserData(userNickname);
 });
 
 maxReposInput.addEventListener("mouseup", function(e) {
@@ -287,5 +293,6 @@ maxReposInput.addEventListener("mouseup", function(e) {
 });
 
 window.addEventListener("load", e => {
-	getUserData("osky772");
+	inputLastUpdated.value = "off";
+	fetchGitHubUserData("osky772");
 });
