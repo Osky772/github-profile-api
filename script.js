@@ -15,23 +15,24 @@ let userGhData = {};
 let userGhRepos = [];
 let reposToRender = [];
 let topLanguages;
-let errorMsg = {};
+let error = {};
 
 async function getUserData(nick) {
 	await fetch(
 		`https://api.github.com/users/${nick}` // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
 	)
 		.then(res => {
-			if (!res.ok) {
-				const timeToComeBack = moment(
-					new Date(res.headers.get("X-RateLimit-Reset") * 1000)
-				).format("h:mm:ss");
-				res.json().then(error => {
-					const msg = error.message;
-					const end = msg.indexOf("(");
-					errorMsg["message"] = end !== -1 ? msg.slice(0, end) : msg.slice(0);
-					errorMsg["remain"] = timeToComeBack;
+			if (res.status === 403) {
+				const resetTime = res.headers.get("X-RateLimit-Reset");
+
+				res.json().then(err => {
+					const end = err.message.indexOf("(");
+					error.message =
+						end !== -1 ? err.message.slice(0, end) : err.message.slice(0);
+					error.resetTime = resetTime;
 				});
+			} else if (res.status === 404) {
+				error.message = "User not found.";
 			} else {
 				return res.json();
 			}
@@ -140,8 +141,8 @@ const createErrorDiv = () => {
 	errorDiv.classList.add("error");
 	errorDiv.classList.remove("hide");
 	errorDiv.innerHTML = `
-		<p>${errorMsg.message}</p>
-		<p class="remain">Come back at ${errorMsg.remain}</p>
+		<p>${error.message}</p>
+		<p class="remain">Come back at ${error.remain}</p>
 	`;
 	profile.append(errorDiv);
 };
@@ -251,7 +252,7 @@ ghUserNameForm.addEventListener("submit", function(e) {
 	userGhRepos = {};
 	reposToRender = [];
 	topLanguages = null;
-	errorMsg = {};
+	error = {};
 	const userNickname = getUserInput.value;
 	removeErrorDiv();
 	getUserData(userNickname);
