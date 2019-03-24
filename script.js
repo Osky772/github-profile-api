@@ -66,93 +66,47 @@ async function getUserTopLanguages() {
 		return;
 	}
 
-	const eachRepoLanguages = gitHubUser.repos.map(repo => {
-		return {
-			[repo.language]: repo.size
-		};
+	const languageUrls = gitHubUser.repos.map(repo => {
+		return `${repo["languages_url"]}`; // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
 	});
 
-	const uniqueLangs = [
-		...new Set(
-			eachRepoLanguages
-				.map(repo => Object.keys(repo))
-				.reduce((acc, next) => acc.concat(next), [])
-				.filter(lang => lang !== "null")
-		)
-	];
+	const requests = languageUrls.map(url => fetch(url));
 
-	const eachLangSize = uniqueLangs.map(lang => {
-		return eachRepoLanguages
-			.filter(repo => repo[lang] !== undefined)
-			.reduce((acc, next) => {
-				return acc + next[lang];
-			}, 0);
-	});
+	Promise.all(requests)
+		.then(responses => responses.map(res => res))
+		.then(responses => Promise.all(responses.map(r => r.json())))
+		.then(value => {
+			let languages = value;
 
-	const topLanguages = eachLangSize
-		.reduce((result, size, index) => {
-			result.push({
-				name: uniqueLangs[index],
-				size
+			const uniqueLangs = [
+				...new Set(
+					languages
+						.map(repo => Object.keys(repo))
+						.reduce((acc, next) => acc.concat(next), [])
+				)
+			];
+
+			const eachLangSize = uniqueLangs.map(lang => {
+				return languages
+					.filter(repo => repo[lang] !== undefined)
+					.reduce((acc, next) => acc + next[lang], 0);
 			});
-			return result;
-		}, [])
-		.sort((a, b) => b.size - a.size)
-		.slice(0, 3);
 
-	gitHubUser.topLanguages = topLanguages;
-	createLanguagesList(gitHubUser.topLanguages);
+			const result = eachLangSize
+				.reduce((result, size, index) => {
+					result.push({
+						name: uniqueLangs[index],
+						size
+					});
+					return result;
+				}, [])
+				.sort((a, b) => b.size - a.size)
+				.slice(0, 3);
+
+			gitHubUser.topLanguages = result;
+			createLanguagesList(gitHubUser.topLanguages);
+		});
 }
-
-// const topLanguages = uniqueLangs
-// 	.map(unique => {
-// 		return eachRepoLanguages.filter(lang => lang === unique);
-// 	})
-// 	.sort((a, b) => b.length - a.length)
-// 	.slice(0, 3);
-
-// const languageUrls = repos.map(repo => {
-// 	return `${repo["languages_url"]}`; // for 403 error add your ids: ?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}
-// });
-
-// const requests = languageUrls.map(url => fetch(url));
-// Promise.all(requests)
-// 	.then(responses => responses.map(res => res))
-// 	.then(responses => Promise.all(responses.map(r => r.json())))
-// 	.then(value => {
-// 		let languages = value;
-
-// const uniqueLangs = [
-// 	...new Set(
-// 		languages
-// 			.map(repo => Object.keys(repo))
-// 			.reduce((acc, next) => acc.concat(next), [])
-// 	)
-// ];
-
-// const eachLangSize = uniqueLangs.map(lang => {
-// 	return languages
-// 		.filter(repo => repo[lang] !== undefined)
-// 		.reduce((acc, next) => acc + next[lang], 0);
-// });
-
-// const result = eachLangSize
-// 	.reduce((result, size, index) => {
-// 		result.push({
-// 			name: uniqueLangs[index],
-// 			size
-// 		});
-// 		return result;
-// 	}, [])
-// 	.sort((a, b) => b.size - a.size)
-// 	.slice(0, 3);
-// 		topLanguages = result;
-// 	});
-
-// 	createLanguagesList(topLanguages);
-// 	sortRepos(gitHubUser.repos);
-// 	renderUserRepos(gitHubUser.repos);
-// }
 
 const createErrorDiv = () => {
 	Array.from(profile.children).forEach(element => {
@@ -170,7 +124,6 @@ const createErrorDiv = () => {
 		<p class="remain">Come back after ${remainingTime} minutes.</p>
 	`;
 	} else if (error.isWrongUser) {
-		console.log("err");
 		errorDiv.innerHTML = `<p>${error.message}</p>`;
 	}
 
